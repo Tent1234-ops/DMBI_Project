@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pipeline Dashboard</title>
+    <!-- bootstrap CDN for responsive layout -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-..." crossorigin="anonymous">
+    <style>
+        body { font-family: Arial; background:#111; color:#fff; padding:30px; }
+        .box { background:#1e1e1e; padding:20px; border-radius:8px; margin-bottom:20px; }
+        h1,h2 { color:#4caf50; }
+        canvas { max-width:100%; }
+    </style>
+</head>
+<body>
+    <h1>Pipeline Dashboard</h1>
+    <div id="stats" class="box">Loading stats...</div>
+    <div id="catChartBox" class="box">
+        <h2>Category Distribution</h2>
+        <canvas id="catChart"></canvas>
+    </div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        async function loadStats() {
+            const div = document.getElementById('stats');
+            try {
+                const res = await fetch('http://127.0.0.1:8000/stats');
+                const js = await res.json();
+                div.innerHTML = `
+                    <h2>Prediction Table</h2>
+                    <p>Total rows: ${js.prediction_rows}</p>
+                    <p>Last pipeline run: ${js.last_run || 'unknown'}</p>
+                `;
+
+                // draw category chart
+                if (Array.isArray(js.category_stats)) {
+                    const labels = js.category_stats.map(c=>c.name);
+                    const data = js.category_stats.map(c=>c.count);
+                    const ctx = document.getElementById('catChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [{
+                                label: 'Rows per Category',
+                                data,
+                                backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                            }]
+                        },
+                        options: { responsive: true, scales: { y: { beginAtZero:true } } }
+                    });
+                }
+            } catch (e) {
+                div.innerHTML = '<p>Error loading stats</p>';
+                console.error(e);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadStats);
+    </script>
+</body>
+</html>

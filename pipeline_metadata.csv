@@ -1,0 +1,30 @@
+zone,file_name,rows,columns,timestamp,status
+Raw Zone,raw_trending.csv,50,5,2026-02-15 16:53:48.152842,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 16:56:55.898745,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 17:02:03.825381,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 17:07:11.763157,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 17:11:53.628854,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 17:20:17.659344,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 17:23:51.759545,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 17:30:22.980061,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 17:35:19.036571,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 17:39:50.563664,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 17:54:53.368224,Success
+Staging Zone,staging_trending.csv,50,5,2026-02-15 17:54:53.378251,Success
+Cleansing Zone,clean_trending.csv,50,6,2026-02-15 17:54:53.407610,Success
+Presentation Zone,presentation_trending.csv,50,6,2026-02-15 17:54:53.416179,Success
+Prediction Zone,clustered_trending.csv,50,7,2026-02-15 17:54:54.909280,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 17:55:48.775957,Success
+Staging Zone,staging_trending.csv,50,5,2026-02-15 17:55:48.783650,Success
+Cleansing Zone,clean_trending.csv,50,6,2026-02-15 17:55:48.808780,Success
+Presentation Zone,presentation_trending.csv,50,6,2026-02-15 17:55:48.815973,Success
+Prediction Zone,clustered_trending.csv,50,7,2026-02-15 17:55:50.156098,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 18:17:33.933277,Success
+Staging Zone,staging_trending.csv,50,5,2026-02-15 18:17:33.940798,Success
+Cleansing Zone,clean_trending.csv,50,6,2026-02-15 18:17:33.967883,Success
+Presentation Zone,presentation_trending.csv,50,6,2026-02-15 18:17:33.976065,Success
+Raw Zone,raw_trending.csv,50,5,2026-02-15 18:19:32.709409,Success
+Staging Zone,staging_trending.csv,50,5,2026-02-15 18:19:32.716722,Success
+Cleansing Zone,clean_trending.csv,50,6,2026-02-15 18:19:32.744198,Success
+Presentation Zone,presentation_trending.csv,50,6,2026-02-15 18:19:32.789426,Success
+Prediction Zone - Clustered,clustered_trending.csv,50,9,2026-02-15 18:19:34.297327,Success

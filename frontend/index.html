@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>YouTube Recommendation</title>
+
+    <style>
+        :root{
+            --bg:#111; --card:#1e1e1e; --text:#fff; --muted:#bbb;
+        }
+        body{font-family:Arial; background:var(--bg); color:var(--text); padding:28px; transition:background .2s,color .2s}
+        body.light{--bg:#fff; --card:#f6f6f6; --text:#111; --muted:#555}
+
+        header{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+        h1{margin:0;font-size:20px}
+
+        select,input{padding:8px;border-radius:6px;border:1px solid #333;background:transparent;color:inherit}
+        .controls{margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+        #themeToggle{margin-left:auto;padding:8px;border-radius:6px;border:1px solid #333;background:transparent;cursor:pointer}
+
+        .card{background:var(--card);padding:14px;margin:14px 0;border-radius:10px;display:flex;gap:12px;align-items:flex-start}
+        .thumb{width:160px;flex:0 0 160px}
+        .thumb img{width:100%;height:auto;border-radius:6px}
+        .content{flex:1}
+        .title{font-weight:700;margin-bottom:6px}
+        .badge{display:inline-block;margin-left:8px;padding:3px 8px;border-radius:6px;background:#c2185b;color:#fff;font-size:12px}
+        .meta{color:var(--muted);font-size:13px}
+
+        .stat{margin-top:8px}
+        .stat-label{font-size:12px;color:var(--muted);margin-bottom:4px}
+        .bar-wrap{background:#2b2b2b;height:12px;border-radius:8px;overflow:hidden}
+        .bar{height:100%;border-radius:8px}
+        .views{background:#4caf50}
+        .likes{background:#2196f3}
+        .eng{background:#ff9800}
+
+        #result{margin-top:18px}
+
+        @media (max-width:640px){.thumb{display:none}.card{flex-direction:column}}
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🎵 YouTube Recommendation</h1>
+        <button id="themeToggle">🌙</button>
+    </header>
+
+    <div class="controls">
+        <label for="categorySelect">หมวดหมู่:</label>
+        <select id="categorySelect"><option value="0">Any / Recommend For Me</option></select>
+
+        <input id="searchInput" placeholder="ค้นหาชื่อวิดีโอ (Search title)">
+
+        <button id="recommendBtn">Recommend</button>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        let allVideos = [];
+
+        async function loadCategories(){
+            const select = document.getElementById('categorySelect');
+            try{
+                const r = await fetch('http://127.0.0.1:8000/categories');
+                if (!r.ok) throw 0;
+                const list = await r.json();
+                // expected [{id:10,name:"Music"},...]
+                list.forEach(item=>{
+                    const o = document.createElement('option'); o.value = item.id; o.textContent = item.name || item.id; select.appendChild(o);
+                });
+            }catch(e){
+                // fallback: common categories
+                const defaults = [[10,'Music'],[24,'Entertainment'],[27,'Education'],[23,'Comedy'],[20,'Gaming']];
+                defaults.forEach(d=>{const o=document.createElement('option');o.value=d[0];o.textContent=d[1];select.appendChild(o)});
+            }
+        }
+
+        function renderVideos(videos){
+            const result = document.getElementById('result');
+            const q = (document.getElementById('searchInput').value||'').toLowerCase();
+            result.innerHTML='';
+            if (!videos || videos.length===0){ result.innerHTML='<p style="color:var(--muted)">ไม่มีผลลัพธ์ / No results</p>'; return }
+
+            videos.forEach(v=>{
+                if (q && !(v.title||'').toLowerCase().includes(q)) return;
+                const viewsP = Math.round((Number(v.views)||0)*100);
+                const likesP = Math.round((Number(v.likes)||0)*100);
+                const engP = Math.round((Number(v.engagement_rate)||0)*100);
+
+                const card = document.createElement('div'); card.className='card';
+
+                const thumb = document.createElement('div'); thumb.className='thumb';
+                if (v.thumbnail) thumb.innerHTML = `<img src="${v.thumbnail}" alt="thumb">`; else thumb.innerHTML = '';
+                const content = document.createElement('div'); content.className='content';
+
+                const title = document.createElement('div'); title.className='title'; title.textContent = v.title || '(no title)';
+                const badge = document.createElement('span'); badge.className='badge'; badge.textContent = 'Cluster '+(v.cluster===undefined?'-':v.cluster);
+                title.appendChild(badge);
+
+                const meta = document.createElement('div'); meta.className='meta'; meta.innerHTML = `🕒 ${v.publish_time||'unknown'}`;
+
+                const statViews = document.createElement('div'); statViews.className='stat';
+                statViews.innerHTML = `<div class="stat-label">👀 Popularity: ${viewsP}%</div><div class="bar-wrap"><div class="bar views" style="width:${viewsP}%"></div></div>`;
+
+                const statLikes = document.createElement('div'); statLikes.className='stat';
+                statLikes.innerHTML = `<div class="stat-label">❤️ Likes: ${likesP}%</div><div class="bar-wrap"><div class="bar likes" style="width:${likesP}%"></div></div>`;
+
+                const statEng = document.createElement('div'); statEng.className='stat';
+                statEng.innerHTML = `<div class="stat-label">📊 Engagement: ${engP}%</div><div class="bar-wrap"><div class="bar eng" style="width:${engP}%"></div></div>`;
+
+                content.appendChild(title); content.appendChild(meta); content.appendChild(statViews); content.appendChild(statLikes); content.appendChild(statEng);
+
+                card.appendChild(thumb); card.appendChild(content);
+                result.appendChild(card);
+            });
+        }
+
+        async function getRecommendation(){
+            const cat = document.getElementById('categorySelect').value||0;
+            const res = document.getElementById('result'); res.innerHTML='Loading...';
+            try{
+                const r = await fetch(`http://127.0.0.1:8000/recommend/${cat}`);
+                if (!r.ok) throw new Error('api');
+                const data = await r.json(); allVideos = data; renderVideos(allVideos);
+            }catch(e){ res.innerHTML='<p style="color:var(--muted)">ไม่สามารถเชื่อมต่อ API (Error connecting to API)</p>' }
+        }
+
+        document.getElementById('recommendBtn').addEventListener('click', getRecommendation);
+        document.getElementById('searchInput').addEventListener('input', ()=>renderVideos(allVideos));
+
+        // theme
+        const themeBtn = document.getElementById('themeToggle');
+        function applyTheme(t){ if(t==='light') document.body.classList.add('light'); else document.body.classList.remove('light'); themeBtn.textContent = document.body.classList.contains('light')? '🌙':'☀️'; localStorage.setItem('theme',t)}
+        themeBtn.addEventListener('click', ()=> applyTheme(document.body.classList.contains('light')? 'dark':'light'));
+        const saved = localStorage.getItem('theme'); if (saved==='light') applyTheme('light'); else applyTheme('dark');
+
+        // init
+        loadCategories();
+    </script>
+
+</body>
+</html>
