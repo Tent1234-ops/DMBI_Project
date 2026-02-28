@@ -98,7 +98,7 @@ These improvements will make your project look more polished and demonstrate dee
 ### Dashboard
 To see simple pipeline metrics, open `/frontend/dashboard.html` via your static server (e.g. `http://localhost:5500/dashboard.html`). It calls the `/stats` API which returns row count, last run time and category breakdown.
 
-The dashboard now uses **Bootstrap** for responsive layout, and **Chart.js** to render a bar chart of how many rows are stored for each YouTube category. You can view it on desktop or mobile without layout issues.
+The dashboard now uses **Bootstrap** for responsive layout, and **Chart.js** to render a bar chart of category statistics. You can toggle between dark/light theme, choose which metric to display (rows, avg views, avg likes), and a table below shows the numeric breakdown for all categories.
 
 
 Use `curl` or a browser:

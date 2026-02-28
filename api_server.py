@@ -151,7 +151,12 @@ def stats():
     conn = get_connection()
     try:
         row_count = pd.read_sql("SELECT COUNT(*) AS c FROM prediction_zone_data", conn).iloc[0,0]
-        cat_df = pd.read_sql("SELECT category, COUNT(*) AS cnt FROM prediction_zone_data GROUP BY category", conn)
+        # include averages for extra metrics
+        cat_df = pd.read_sql(
+            "SELECT category, COUNT(*) AS cnt, AVG(views) AS avg_views, AVG(likes) AS avg_likes "
+            "FROM prediction_zone_data GROUP BY category",
+            conn
+        )
     finally:
         conn.close()
 
@@ -204,7 +209,9 @@ def stats():
         categories.append({
             'id': cid,
             'name': cat_names.get(cid, str(cid)),
-            'count': int(row['cnt'])
+            'count': int(row['cnt']),
+            'avg_views': float(row.get('avg_views', 0) or 0),
+            'avg_likes': float(row.get('avg_likes', 0) or 0)
         })
 
     return {"prediction_rows": int(row_count), "last_run": latest, "category_stats": categories}
